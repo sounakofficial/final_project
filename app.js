@@ -7,8 +7,10 @@ const morgan = require('morgan');
 
 const QuestionRoutes = require('./api/routes/questions');
 const SubjectRoutes = require('./api/routes/subjects');
-const StudentRoutes = require('./api/routes/students');
-const TeacherRoutes = require('./api/routes/teachers');
+
+//const StudentRoutes = require('./api/routes/students');
+//const TeacherRoutes = require('./api/routes/teachers');
+
 
 mongoose.connect(
   'mongodb+srv://examAdmin:' +
@@ -30,7 +32,9 @@ app.use(bodyParser.json());
 
 app.use('/subjects', SubjectRoutes);
 app.use('/questions', QuestionRoutes);
-app.use('/students', StudentRoutes);
-app.use('/teachers', TeacherRoutes);
+
+//app.use('/students', StudentRoutes);
+//app.use('/teachers', TeacherRoutes);
+
 
 module.exports = app;
