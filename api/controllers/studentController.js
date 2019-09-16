@@ -1,44 +1,39 @@
-const Subject = require('../models/subject');
+const Student = require('../models/student');
 const mongoose = require('mongoose');
 const objectid = require('mongoose').Types.ObjectId;
-//const bodyparser = require('body-parser');
 
-exports.getSubjects = (req, res, next) => {
-  Subject.find()
-    .select('_id sub sub_id')
-    .exec()
-    .then(result => {
-      res.status(200).json(result);
-    })
-    .catch(err => {
-      res.status(500).json({
-        error: err
-      });
-    });
-};
-
-exports.postSubjects = (req, res, next) => {
-  const subject = new Subject({
-    _id: new mongoose.Types.ObjectId(),
-    sub: req.body.sub,
-    sub_id: req.body.sub_id
+exports.getStudents = (req, res, next) => {
+  Student.find((err, docs) => {
+    if (!err) {
+      res.send(docs);
+    } else {
+      'Error in Retriving Employess:' + JSON.stringify(err, undefined, 2);
+    }
   });
-  subject
-    .save()
-    .then(result => {
-      res.status(200).json(result);
-    })
-    .catch(err => {
-      res.status(500).json({
-        error: err
-      });
-    });
 };
 
-exports.getsinglesubject = (req, res, next) => {
+exports.postStudent = (req, res, next) => {
+  var stu = new Student({
+    _id: new mongoose.Types.ObjectId(),
+    name: req.body.name,
+    dob: req.body.dob,
+    email: req.body.email,
+    password: req.body.password
+  });
+
+  stu.save((err, docs) => {
+    if (!err) {
+      res.send(docs);
+    } else {
+      console.log('Error in Saving Data' + JSON.stringify(err, undefined, 2));
+    }
+  });
+};
+
+exports.getSingleStudent = (req, res, next) => {
   if (!objectid.isValid(req.params.id))
     return res.status(400).send(`no record with this id : ${req.params.id}`);
-  Subject.findById(req.params.id, (err, doc) => {
+  Student.findById(req.params.id, (err, doc) => {
     if (!err) {
       res.send(doc);
     } else {
@@ -49,18 +44,20 @@ exports.getsinglesubject = (req, res, next) => {
   });
 };
 
-exports.putSubjects = (req, res, next) => {
+exports.putStudent = (req, res, next) => {
   if (!objectid.isValid(req.params.id))
     return res.status(400).send(`no record with this id : ${req.params.id}`);
 
-  const subject = {
-    sub: req.body.sub,
-    sub_id: req.body.sub_id
+  const stu = {
+    name: req.body.name,
+    dob: req.body.dob,
+    email: req.body.email,
+    password: req.body.password
   };
 
-  Subject.findByIdAndUpdate(
+  Student.findByIdAndUpdate(
     req.params.id,
-    { $set: subject },
+    { $set: stu },
     { new: true },
     (err, doc) => {
       if (!err) {
@@ -74,10 +71,10 @@ exports.putSubjects = (req, res, next) => {
   );
 };
 
-exports.deleteSubjects = (req, res) => {
+exports.deleteStudent = (req, res) => {
   if (!objectid.isValid(req.params.id))
     return res.status(400).send(`NO RECORD WITH GIVEN ID: ${req.params.id}`);
-  Subject.findByIdAndRemove(req.params.id, (err, docs) => {
+  Student.findByIdAndRemove(req.params.id, (err, docs) => {
     if (!err) {
       res.send(`deleted item of id: ${req.params.id}`);
     } else {
