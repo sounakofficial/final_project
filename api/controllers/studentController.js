@@ -1,84 +1,49 @@
-const Student = require('../models/student');
 const mongoose = require('mongoose');
-const objectid = require('mongoose').Types.ObjectId;
+const passport = require('passport');
+const bodyparser = require('body-parser');
+const _ = require('lodash');
 
-exports.getStudents = (req, res, next) => {
-  Student.find((err, docs) => {
-    if (!err) {
-      res.send(docs);
-    } else {
-      'Error in Retriving Employess:' + JSON.stringify(err, undefined, 2);
-    }
+const Student = require('../models/student');
+
+module.exports.studentRegister = (req, res, next) => {
+  var reguser = new Student();
+  reguser.fullName = req.body.fullName;
+  reguser.email = req.body.email;
+  reguser.phone = req.body.phone;
+  reguser.address = req.body.address;
+  reguser.password = req.body.password;
+  reguser.save().then(result=>{
+    console.log(result)
+  }).catch(err=>{
+    res.status(500).json({
+      error:err
+    })
   });
 };
 
-exports.postStudent = (req, res, next) => {
-  var stu = new Student({
-    _id: new mongoose.Types.ObjectId(),
-    name: req.body.name,
-    dob: req.body.dob,
-    email: req.body.email,
-    password: req.body.password
-  });
-
-  stu.save((err, docs) => {
-    if (!err) {
-      res.send(docs);
-    } else {
-      console.log('Error in Saving Data' + JSON.stringify(err, undefined, 2));
-    }
-  });
+module.exports.studentAuthenticate = (req, res, next) => {
+  // call for passport authentication
+  passport.authenticate('studentStrategy', (err, reguser, info) => {
+    // error from passport middleware
+    if (err) return res.status(400).json(err);
+    // registered reguser
+    else if (reguser)
+      return res.status(200).json({ token: reguser.generateJwt() });
+    // unknown reguser or wrong password
+    else return res.status(404).json(info);
+  })(req, res);
 };
 
-exports.getSingleStudent = (req, res, next) => {
-  if (!objectid.isValid(req.params.id))
-    return res.status(400).send(`no record with this id : ${req.params.id}`);
-  Student.findById(req.params.id, (err, doc) => {
-    if (!err) {
-      res.send(doc);
-    } else {
-      console.log(
-        'Error in Retriving Subject ' + JSON.stringify(err, undefined, 2)
-      );
-    }
-  });
-};
-
-exports.putStudent = (req, res, next) => {
-  if (!objectid.isValid(req.params.id))
-    return res.status(400).send(`no record with this id : ${req.params.id}`);
-
-  const stu = {
-    name: req.body.name,
-    dob: req.body.dob,
-    email: req.body.email,
-    password: req.body.password
-  };
-
-  Student.findByIdAndUpdate(
-    req.params.id,
-    { $set: stu },
-    { new: true },
-    (err, doc) => {
-      if (!err) {
-        res.send(doc);
-      } else {
-        console.log(
-          'Error in Updaing Data' + JSON.stringify(err, undefined, 2)
-        );
-      }
-    }
-  );
-};
-
-exports.deleteStudent = (req, res) => {
-  if (!objectid.isValid(req.params.id))
-    return res.status(400).send(`NO RECORD WITH GIVEN ID: ${req.params.id}`);
-  Student.findByIdAndRemove(req.params.id, (err, docs) => {
-    if (!err) {
-      res.send(`deleted item of id: ${req.params.id}`);
-    } else {
-      console.log('Error in Delete Data' + JSON.stringify(err, undefined, 2));
-    }
+module.exports.studentProfile = (req, res, next) => {
+  Student.findOne({ _id: req._id, email:req.email }, (err, reguser) => {
+    if (!reguser)
+      return res
+        .status(404)
+        .json({ status: false, message: 'reguser record not found.' });
+    else
+      return res.status(200).json({
+        status: true,
+        reguser: _.pick(reguser, ['fullName', 'email'])
+      });
   });
 };
