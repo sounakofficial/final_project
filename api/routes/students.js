@@ -10,5 +10,4 @@ router.post(
   studentController.studentAuthenticate
 );
 router.get('/profile', studentController.studentProfile);
-
 module.exports = router;

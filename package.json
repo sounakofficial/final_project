@@ -7,7 +7,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "nodemon server.js"
   },
-  "author": "sounak, asish , kingshuk, Dolon , Nilanjona",
+  "author": "sounak, ashis , kingshuk, Dolon , Nilanjona",
   "license": "ISC",
   "dependencies": {
     "bcrypt": "^3.0.6",
